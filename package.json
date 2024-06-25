@@ -1,0 +1,15 @@
+{
+  "name": "medtrakback",
+  "version": "1.0.0",
+  "description": "Backend for MedTrak",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "author": "Jace Prince",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
