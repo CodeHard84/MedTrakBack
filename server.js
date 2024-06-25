@@ -8,7 +8,7 @@ dotenv.config();
 const app = express();
 
 const corsOptions = {
-  origin: 'https://medtrk.netlify.app',
+  origin: '*',
   optionsSuccessStatus: 200,
 };
 
