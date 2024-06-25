@@ -1,7 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
-const { checkJwt, checkAuth } = require('./middleware/auth');
+const checkJwt = require('./middleware/auth');
 const protectedRoutes = require('./routes/protectedRoutes');
 
 dotenv.config();
@@ -15,7 +15,8 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
-app.use(checkAuth);
+
+// Use the routes
 app.use('/api', protectedRoutes);
 
 const port = process.env.PORT || 3001;

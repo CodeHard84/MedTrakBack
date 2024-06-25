@@ -14,11 +14,6 @@ const checkJwt = jwt({
   audience: process.env.API_IDENTIFIER,
   issuer: `https://${process.env.AUTH0_DOMAIN}/`,
   algorithms: ['RS256']
-}).unless({ path: ['/public'] });
+});
 
-const checkAuth = (req, res, next) => {
-  console.log('Authorization:', req.headers.authorization);
-  next();
-};
-
-module.exports = { checkJwt, checkAuth };
+module.exports = checkJwt;
