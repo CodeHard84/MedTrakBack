@@ -1,3 +1,4 @@
+// src/index.js
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
@@ -15,6 +16,11 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 app.use(express.json());
+
+app.use((req, res, next) => {
+  console.log('Authorization Header:', req.headers.authorization);
+  next();
+});
 
 // Use the routes
 app.use('/api', protectedRoutes);
