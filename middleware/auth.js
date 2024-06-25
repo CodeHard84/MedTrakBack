@@ -13,7 +13,7 @@ const checkJwt = jwt({
   }),
   audience: process.env.API_IDENTIFIER,
   issuer: `https://${process.env.AUTH0_DOMAIN}/`,
-  algorithms: ['RS256']
+  algorithms: ['HS256']
 });
 
 module.exports = checkJwt;
