@@ -1,6 +1,7 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const cors = require('cors');
+const { checkJwt, checkAuth } = require('./middleware/auth');
 const protectedRoutes = require('./routes/protectedRoutes');
 
 dotenv.config();
@@ -8,13 +9,13 @@ dotenv.config();
 const app = express();
 
 const corsOptions = {
-  origin: '*',
+  origin: 'https://medtrk.netlify.app',
   optionsSuccessStatus: 200,
 };
 
 app.use(cors(corsOptions));
-
 app.use(express.json());
+app.use(checkAuth);
 app.use('/api', protectedRoutes);
 
 const port = process.env.PORT || 3001;
