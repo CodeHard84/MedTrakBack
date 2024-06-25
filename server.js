@@ -1,16 +1,16 @@
-require('dotenv').config();
+const express = require('express');
+const dotenv = require('dotenv');
+const protectedRoutes = require('./routes/protectedRoutes');
 
-const express = require('express')
-const app = express()
-const cors = require('cors');
-const PORT = process.env.PORT || 3001;
+dotenv.config();
 
-app.use(cors());
+const app = express();
+
 app.use(express.json());
+app.use('/api', protectedRoutes);
 
-// Default Route
-app.get('*', (req, res) => {
-  res.status(404).send('These are not the droids you are looking for.');
+const port = process.env.PORT || 3001;
+
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
-
-app.listen(PORT, () => console.log(`listening on ${PORT}`));
