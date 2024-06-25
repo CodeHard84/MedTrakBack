@@ -9,7 +9,7 @@ const checkJwt = jwt({
     cache: true,
     rateLimit: true,
     jwksRequestsPerMinute: 5,
-    jwksUri: `https://${process.env.AUTH0_DOMAIN}/.well-known/jwks.json`
+    jwksUri: `https://dev-1iftv5mchggiriqw.us.auth0.com/.well-known/jwks.json`
   }),
   audience: process.env.API_IDENTIFIER,
   issuer: `https://${process.env.AUTH0_DOMAIN}/`,
