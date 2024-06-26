@@ -1,30 +1,20 @@
-const express = require('express');
-const dotenv = require('dotenv');
-const cors = require('cors');
-const checkJwt = require('./middleware/auth');
-const protectedRoutes = require('./routes/protectedRoutes');
+require('dotenv').config(); // Ensure this is at the top
 
-dotenv.config();
+const express = require('express');
+const connectDB = require('./middleware/db');
 
 const app = express();
 
-const corsOptions = {
-  origin: 'https://medtrk.netlify.app',
-  optionsSuccessStatus: 200,
-};
+// Connect to MongoDB
+connectDB();
 
-app.use(cors(corsOptions));
 app.use(express.json());
 
-app.use((req, res, next) => {
-  console.log('Authorization Header:', req.headers.authorization);
-  next();
-});
+// Use routes
+app.use('/api/medications', require('./routes/medicationRoutes'));
 
-// Use the routes
-app.use('/api', protectedRoutes);
+const PORT = process.env.PORT || 5000;
 
-const port = process.env.PORT || 3001;
-app.listen(port, () => {
-  console.log(`Server is running on port ${port}`);
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
