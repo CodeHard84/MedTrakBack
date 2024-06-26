@@ -1,17 +1,22 @@
-require('dotenv').config(); // Ensure this is at the top
-
 const express = require('express');
-const connectDB = require('./middleware/db');
+const cors = require('cors');
+const connectDB = require('./db');
+const medicationRoutes = require('./routes/medicationRoutes');
 
 const app = express();
 
 // Connect to MongoDB
 connectDB();
 
+// Enable CORS for all routes
+app.use(cors({
+  origin: 'https://medtrk.netlify.app',
+}));
+
 app.use(express.json());
 
 // Use routes
-app.use('/api/medications', require('./routes/medicationRoutes'));
+app.use('/api/medications', medicationRoutes);
 
 const PORT = process.env.PORT || 5000;
 
