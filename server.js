@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const connectDB = require('./db');
+const connectDB = require('./middleware/db');
 const medicationRoutes = require('./routes/medicationRoutes');
 
 const app = express();
