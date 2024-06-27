@@ -1,25 +1,20 @@
 const mongoose = require('mongoose');
 
 const medicationSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  dosage: {
-    type: String,
-    required: true,
-  },
+  name: { type: String, required: true },
+  dosage: { type: String, required: true },
   frequency: {
     type: String,
-    required: true,
+    enum: ['daily', 'weekly', 'monthly'],
+    required: true
   },
-  userId: {
-    type: String,
-    ref: 'User',
-    required: true,
+  howManyTimes: {
+    type: Number,
+    required: function() {
+      return this.frequency === 'daily';
+    }
   },
-}, { collection: 'medications' });
+  userId: { type: String, required: true }
+});
 
-const Medication = mongoose.model('Medication', medicationSchema);
-
-module.exports = Medication;
+module.exports = mongoose.model('Medication', medicationSchema);
