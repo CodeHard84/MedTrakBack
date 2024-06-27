@@ -21,9 +21,27 @@ const medicationSchema = new mongoose.Schema({
     },
     validate: {
       validator: function(v) {
-        return v.length === this.howManyTimes;
+        return this.frequency !== 'daily' || v.length === this.howManyTimes;
       },
       message: 'Number of times should match how many times per day.'
+    }
+  },
+  dayOfWeek: {
+    type: String,
+    required: function() {
+      return this.frequency === 'weekly';
+    }
+  },
+  dayOfMonth: {
+    type: Number,
+    required: function() {
+      return this.frequency === 'monthly';
+    }
+  },
+  time: {
+    type: String,
+    required: function() {
+      return this.frequency === 'weekly' || this.frequency === 'monthly';
     }
   },
   userId: { type: String, required: true }
