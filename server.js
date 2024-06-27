@@ -10,7 +10,7 @@ connectDB();
 
 // Enable CORS for all routes
 app.use(cors({
-  origin: 'https://medtrk.netlify.app',
+  origin: ['https://medtrk.netlify.app', '*']
 }));
 
 app.use(express.json());
