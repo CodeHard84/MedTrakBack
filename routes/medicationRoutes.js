@@ -16,12 +16,13 @@ router.get('/', checkJwt, async (req, res) => {
 
 // Create a new medication
 router.post('/', checkJwt, async (req, res) => {
-  const { name, dosage, frequency, howManyTimes } = req.body;
+  const { name, dosage, frequency, howManyTimes, times } = req.body;
   const medication = new Medication({
     name,
     dosage,
     frequency,
     howManyTimes: frequency === 'daily' ? howManyTimes : undefined,
+    times: frequency === 'daily' ? times : undefined,
     userId: req.auth.sub,
   });
 
@@ -35,7 +36,7 @@ router.post('/', checkJwt, async (req, res) => {
 
 // Update a medication
 router.put('/:id', checkJwt, async (req, res) => {
-  const { name, dosage, frequency, howManyTimes } = req.body;
+  const { name, dosage, frequency, howManyTimes, times } = req.body;
   try {
     const medication = await Medication.findById(req.params.id);
     if (!medication) {
@@ -49,6 +50,7 @@ router.put('/:id', checkJwt, async (req, res) => {
     medication.dosage = dosage;
     medication.frequency = frequency;
     medication.howManyTimes = frequency === 'daily' ? howManyTimes : undefined;
+    medication.times = frequency === 'daily' ? times : undefined;
 
     const updatedMedication = await medication.save();
     res.json(updatedMedication);

@@ -14,6 +14,18 @@ const medicationSchema = new mongoose.Schema({
       return this.frequency === 'daily';
     }
   },
+  times: {
+    type: [String],
+    required: function() {
+      return this.frequency === 'daily';
+    },
+    validate: {
+      validator: function(v) {
+        return v.length === this.howManyTimes;
+      },
+      message: 'Number of times should match how many times per day.'
+    }
+  },
   userId: { type: String, required: true }
 });
 
