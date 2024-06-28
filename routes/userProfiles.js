@@ -4,6 +4,22 @@ const checkJwt = require('../middleware/auth');
 
 const router = express.Router();
 
+// Ensure user profile
+router.post('/ensure', checkJwt, async (req, res) => {
+  try {
+    const { sub, email } = req.auth;
+    let profile = await UserProfile.findOne({ userId: sub });
+    if (!profile) {
+      profile = new UserProfile({ userId: sub, email });
+      await profile.save();
+    }
+    res.json(profile);
+  } catch (error) {
+    console.error('Error ensuring profile:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 // Get user profile
 router.get('/', checkJwt, async (req, res) => {
   try {
