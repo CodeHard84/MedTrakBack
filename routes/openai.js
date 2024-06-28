@@ -7,7 +7,6 @@ router.post('/generate-description', async (req, res) => {
   const { medicationName, medicationId } = req.body;
 
   try {
-    // Check if the medication already has a description and side effects
     const existingMedication = await Medication.findById(medicationId);
 
     if (!existingMedication) {
@@ -21,7 +20,6 @@ router.post('/generate-description', async (req, res) => {
       });
     }
 
-    // Fetch description from OpenAI
     const descriptionResponse = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
@@ -45,7 +43,6 @@ router.post('/generate-description', async (req, res) => {
       throw new Error('Failed to generate description from OpenAI');
     }
 
-    // Fetch side effects from OpenAI
     const sideEffectsResponse = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
@@ -69,7 +66,6 @@ router.post('/generate-description', async (req, res) => {
       throw new Error('Failed to generate side effects from OpenAI');
     }
 
-    // Update the medication in the database with the fetched description and side effects
     existingMedication.description = description;
     existingMedication.sideEffects = sideEffects;
     await existingMedication.save();

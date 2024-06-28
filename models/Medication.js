@@ -6,13 +6,13 @@ const medicationSchema = new mongoose.Schema({
   frequency: { type: String, required: true },
   howManyTimes: { type: Number, required: true },
   times: { type: [String], required: true },
-  dayOfWeek: { type: [Number] }, // Array of days of the week
-  dayOfMonth: { type: Number }, // Specific day of the month
+  dayOfWeek: { type: [Number] }, 
+  dayOfMonth: { type: Number }, 
   time: { type: String, required: true },
   userId: { type: String, required: true },
   timezone: { type: String, required: true },
-  description: { type: String }, // New field for medication description
-  sideEffects: { type: String } // New field for medication side effects
+  description: { type: String }, 
+  sideEffects: { type: String } 
 });
 
 const Medication = mongoose.model('Medication', medicationSchema);
