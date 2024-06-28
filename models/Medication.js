@@ -6,7 +6,7 @@ const medicationSchema = new mongoose.Schema({
   frequency: { type: String, required: true },
   howManyTimes: { type: Number},
   times: { type: [String] },
-  dayOfWeek: { type: [Number] }, 
+  dayOfWeek: { type: String }, 
   dayOfMonth: { type: Number }, 
   time: { type: String },
   userId: { type: String, required: true },
