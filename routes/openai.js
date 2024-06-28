@@ -7,7 +7,7 @@ router.post('/generate-description', async (req, res) => {
 
   try {
     const response = await axios.post(
-      'https://api.openai.com/v1/engines/davinci-codex/completions',
+      'https://api.openai.com/v1/chat/completions',
       {
         prompt: `Describe the medication called ${medicationName}.`,
         max_tokens: 150,
