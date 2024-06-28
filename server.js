@@ -1,10 +1,16 @@
 const express = require('express');
+const cors = require('cors');
 const connectDB = require('./middleware/db');
 const userProfiles = require('./routes/userProfiles');
 const medications = require('./routes/medicationRoutes');
 require('./cron/medicationReminder');
 
 const app = express();
+
+// Enable CORS for all routes
+app.use(cors({
+  origin: ['https://medtrk.netlify.app', '*']
+}));
 
 connectDB();
 
