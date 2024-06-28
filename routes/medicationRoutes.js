@@ -1,5 +1,6 @@
 const express = require('express');
 const Medication = require('../models/Medication');
+const UserProfile = require('../models/UserProfile'); // Import UserProfile
 const checkJwt = require('../middleware/auth');
 const moment = require('moment-timezone');
 
@@ -20,29 +21,33 @@ router.get('/', checkJwt, async (req, res) => {
 router.post('/', checkJwt, async (req, res) => {
   const { name, dosage, frequency, howManyTimes, times, dayOfWeek, dayOfMonth, time } = req.body;
 
-  const userProfile = await UserProfile.findOne({ userId: req.auth.sub });
-
-  const medicationTimesInUtc = times.map(medTime => {
-    return moment.tz(medTime, 'HH:mm', userProfile.timezone).utc().format('HH:mm');
-  });
-
-  const medication = new Medication({
-    name,
-    dosage,
-    frequency,
-    howManyTimes,
-    times: medicationTimesInUtc,
-    dayOfWeek,
-    dayOfMonth,
-    time: medicationTimesInUtc[0],
-    userId: req.auth.sub,
-    timezone: userProfile.timezone,
-  });
-
   try {
+    const userProfile = await UserProfile.findOne({ userId: req.auth.sub });
+    if (!userProfile) {
+      return res.status(404).json({ message: 'User profile not found' });
+    }
+
+    const medicationTimesInUtc = times.map(medTime => {
+      return moment.tz(medTime, 'HH:mm', userProfile.timezone).utc().format('HH:mm');
+    });
+
+    const medication = new Medication({
+      name,
+      dosage,
+      frequency,
+      howManyTimes,
+      times: medicationTimesInUtc,
+      dayOfWeek,
+      dayOfMonth,
+      time: medicationTimesInUtc[0], // Assuming single time field
+      userId: req.auth.sub,
+      timezone: userProfile.timezone,
+    });
+
     const newMedication = await medication.save();
     res.status(201).json(newMedication);
   } catch (error) {
+    console.error('Error creating medication:', error);
     res.status(400).json({ message: error.message });
   }
 });
@@ -60,6 +65,7 @@ router.put('/:id', checkJwt, async (req, res) => {
     }
     res.json(medication);
   } catch (error) {
+    console.error('Error updating medication:', error);
     res.status(400).json({ message: error.message });
   }
 });
@@ -73,6 +79,7 @@ router.delete('/:id', checkJwt, async (req, res) => {
     }
     res.json({ message: 'Medication deleted' });
   } catch (error) {
+    console.error('Error deleting medication:', error);
     res.status(500).json({ message: error.message });
   }
 });
