@@ -75,3 +75,4 @@ const sendMedicationReminders = async () => {
 
 // Schedule the cron job to run every minute
 cron.schedule('* * * * *', sendMedicationReminders); // Run every minute
+
