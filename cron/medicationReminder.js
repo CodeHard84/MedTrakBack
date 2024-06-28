@@ -5,6 +5,7 @@ const UserProfile = require('../models/UserProfile');
 const sendEmail = require('../config/email');
 const moment = require('moment-timezone');
 
+// Fetch current UTC time from an external reliable time source
 const fetchCurrentUtcTime = async () => {
   try {
     const response = await axios.get('http://worldtimeapi.org/api/timezone/Etc/UTC');
@@ -15,6 +16,7 @@ const fetchCurrentUtcTime = async () => {
   }
 };
 
+// Function to send medication reminders
 const sendMedicationReminders = async () => {
   try {
     console.log('Cron job running...');
@@ -22,11 +24,10 @@ const sendMedicationReminders = async () => {
     const nowUtc = await fetchCurrentUtcTime();
     const fifteenMinutesFromNowUtc = nowUtc.clone().add(15, 'minutes');
 
-    console.log(`Current UTC time from API: ${nowUtc.format('HH:mm')}`);
-    console.log(`UTC time 15 minutes from now: ${fifteenMinutesFromNowUtc.format('HH:mm')}`);
+    console.log(`Current UTC time from API: ${nowUtc.format()}`);
+    console.log(`UTC time 15 minutes from now: ${fifteenMinutesFromNowUtc.format()}`);
 
     const medications = await Medication.find();
-
     console.log(`Medications found: ${medications.length}`);
 
     for (const medication of medications) {
@@ -60,4 +61,5 @@ const sendMedicationReminders = async () => {
   }
 };
 
+// Schedule the cron job to run every minute
 cron.schedule('* * * * *', sendMedicationReminders); // Run every minute
