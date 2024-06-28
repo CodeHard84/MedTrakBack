@@ -67,9 +67,9 @@ const sendMedicationReminders = async () => {
                     }
 
                     // Determine the next time an email should be sent
-                    if (!nextEmailTime || medTimeInUtc.isBefore(nextEmailTime)) {
-                        nextEmailTime = medTimeInUtc.add(24, 'hours'); // Add 24 hours for the next day's reminder
-                    }
+                    // if (!nextEmailTime || medTimeInUtc.isBefore(nextEmailTime)) {
+                    //     nextEmailTime = medTimeInUtc.add(24, 'hours'); // Add 24 hours for the next day's reminder
+                    // }
                 });
 
                 // Log the next email time for this medication
