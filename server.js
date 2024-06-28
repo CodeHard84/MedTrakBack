@@ -17,6 +17,7 @@ app.use(express.json());
 
 // Use routes
 app.use('/api/medications', medicationRoutes);
+app.use('/api/userProfile', userProfiles);
 
 const PORT = process.env.PORT || 5000;
 
