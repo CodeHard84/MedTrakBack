@@ -4,19 +4,28 @@ const router = express.Router();
 const Medication = require('../models/Medication');
 
 router.post('/generate-description', async (req, res) => {
-  const { medicationName } = req.body;
+  const { medicationName, medicationId } = req.body;
 
   try {
-    const response = await axios.post(
+    // Check if the medication already has a description and side effects
+    const existingMedication = await Medication.findById(medicationId);
+    if (existingMedication.description && existingMedication.sideEffects) {
+      return res.json({
+        description: existingMedication.description,
+        sideEffects: existingMedication.sideEffects
+      });
+    }
+
+    // Fetch description from OpenAI
+    const descriptionResponse = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
         model: "gpt-3.5-turbo",
         messages: [
           { role: "system", content: "You are a medical assistant." },
-          { role: "user", content: `Describe the medication called ${medicationName}.` },
-          { role: "user", content: `List the top 10 most common side effects of ${medicationName}.` }
+          { role: "user", content: `Describe the medication called ${medicationName}.` }
         ],
-        max_tokens: 300,
+        max_tokens: 150,
       },
       {
         headers: {
@@ -26,17 +35,35 @@ router.post('/generate-description', async (req, res) => {
       }
     );
 
-    const messageContent = response.data.choices[0]?.message?.content;
-    if (!messageContent) {
-      throw new Error('Invalid response from OpenAI');
-    }
+    const description = descriptionResponse.data.choices[0].message.content.trim();
 
-    const [description, sideEffectsBlock] = messageContent.split('\n\n');
-    const sideEffects = sideEffectsBlock
-      ? sideEffectsBlock.trim().split('\n').map(effect => effect.replace(/^\d+\.\s*/, ''))
-      : [];
+    // Fetch side effects from OpenAI
+    const sideEffectsResponse = await axios.post(
+      'https://api.openai.com/v1/chat/completions',
+      {
+        model: "gpt-3.5-turbo",
+        messages: [
+          { role: "system", content: "You are a medical assistant." },
+          { role: "user", content: `What are the top 10 most common side effects of ${medicationName}?` }
+        ],
+        max_tokens: 150,
+      },
+      {
+        headers: {
+          'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
-    res.json({ description: description.trim(), sideEffects });
+    const sideEffects = sideEffectsResponse.data.choices[0].message.content.trim();
+
+    // Update the medication in the database with the fetched description and side effects
+    existingMedication.description = description;
+    existingMedication.sideEffects = sideEffects;
+    await existingMedication.save();
+
+    res.json({ description, sideEffects });
   } catch (error) {
     console.error('Error generating description and side effects:', error);
     res.status(500).json({ error: 'Failed to generate description and side effects' });
