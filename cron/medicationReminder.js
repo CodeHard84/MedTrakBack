@@ -18,10 +18,10 @@ const fetchCurrentUtcTime = async () => {
 const sendMedicationReminders = async () => {
   try {
     console.log('Cron job running...');
-
+    
     const nowUtc = await fetchCurrentUtcTime();
     const fifteenMinutesFromNowUtc = nowUtc.clone().add(15, 'minutes');
-
+    
     console.log(`Current UTC time from API: ${nowUtc.format('HH:mm')}`);
     console.log(`UTC time 15 minutes from now: ${fifteenMinutesFromNowUtc.format('HH:mm')}`);
 

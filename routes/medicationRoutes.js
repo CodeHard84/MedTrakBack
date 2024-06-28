@@ -44,19 +44,15 @@ router.post('/', checkJwt, async (req, res) => {
       return res.status(404).json({ message: 'User profile not found' });
     }
 
-    const medicationTimesInUtc = times.map(medTime => {
-      return moment.tz(medTime, 'HH:mm', userProfile.timezone).utc().format('HH:mm');
-    });
-
     const medication = new Medication({
       name,
       dosage,
       frequency,
       howManyTimes,
-      times: medicationTimesInUtc,
+      times, // Store times in user's local time
       dayOfWeek,
       dayOfMonth,
-      time: medicationTimesInUtc[0], // Assuming single time field
+      time, // Store the first time in user's local time
       userId: req.auth.sub,
       timezone: userProfile.timezone,
     });
