@@ -5,7 +5,7 @@ const userProfileSchema = new mongoose.Schema({
   name: { type: String },
   email: { type: String, required: true },
   cell: { type: String },
-  timezone: { type: String },
+  timezone: { type: String, default: "America/Chicago" },
 });
 
 const UserProfile = mongoose.model('UserProfile', userProfileSchema);
