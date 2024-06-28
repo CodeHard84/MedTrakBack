@@ -23,11 +23,9 @@ const sendMedicationReminders = async () => {
 
     const nowUtc = await fetchCurrentUtcTime();
     const fifteenMinutesFromNowUtc = nowUtc.clone().add(15, 'minutes');
-    const twentyFourHoursFromNowUtc = nowUtc.clone().add(24, 'hours');
 
     console.log(`Current UTC time from API: ${nowUtc.format()}`);
     console.log(`UTC time 15 minutes from now: ${fifteenMinutesFromNowUtc.format()}`);
-    console.log(`UTC time 24 hours from now: ${twentyFourHoursFromNowUtc.format()}`);
 
     const medications = await Medication.find();
     console.log(`Medications found: ${medications.length}`);
@@ -36,6 +34,8 @@ const sendMedicationReminders = async () => {
       const userProfile = await UserProfile.findOne({ userId: medication.userId });
       if (userProfile && userProfile.email) {
         console.log(`Checking medication for user: ${medication.userId}`);
+
+        let nextEmailTime = null;
 
         medication.times.forEach(medTime => {
           const medTimeInUserTimezone = moment.tz(medTime, 'HH:mm', userProfile.timezone);
@@ -46,6 +46,11 @@ const sendMedicationReminders = async () => {
           console.log(`Current time (UTC): ${nowUtc.format('HH:mm')}`);
           console.log(`Current time + 15 minutes (UTC): ${fifteenMinutesFromNowUtc.format('HH:mm')}`);
 
+          // Determine the next time an email should be sent
+          if (!nextEmailTime || medTimeInUtc.isAfter(nextEmailTime)) {
+            nextEmailTime = medTimeInUtc;
+          }
+
           if (medTimeInUtc.isBetween(nowUtc, fifteenMinutesFromNowUtc)) {
             const emailText = `Reminder: It's time to take your medication: ${medication.name}`;
             console.log(`Sending email to ${userProfile.email} for medication ${medication.name} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
@@ -55,15 +60,12 @@ const sendMedicationReminders = async () => {
           }
         });
 
-        // Log upcoming reminders within the next 24 hours
-        medication.times.forEach(medTime => {
-          const medTimeInUserTimezone = moment.tz(medTime, 'HH:mm', userProfile.timezone);
-          const medTimeInUtc = medTimeInUserTimezone.clone().utc();
-
-          if (medTimeInUtc.isBetween(nowUtc, twentyFourHoursFromNowUtc)) {
-            console.log(`Upcoming reminder within 24 hours: Medication ${medication.name} for user ${userProfile.email} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
-          }
-        });
+        // Log the next email time for this medication
+        if (nextEmailTime) {
+          console.log(`Next email for medication ${medication.name} will be sent at ${nextEmailTime.format('HH:mm')} UTC`);
+        } else {
+          console.log(`No upcoming email scheduled for medication ${medication.name}`);
+        }
       } else {
         console.log(`No user profile or email found for user: ${medication.userId}`);
       }
@@ -75,4 +77,3 @@ const sendMedicationReminders = async () => {
 
 // Schedule the cron job to run every minute
 cron.schedule('* * * * *', sendMedicationReminders); // Run every minute
-
