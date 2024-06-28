@@ -44,8 +44,11 @@ const sendMedicationReminders = async () => {
             date: nowUtc.date()
           });
 
-          // If the medication time is before the current time, and it is still today, we should not adjust to the next day.
-          // This means we need to adjust the logic to handle such cases properly.
+          // Adjust medication time for the current date
+          if (medTimeInUserTimezone.isBefore(moment.tz(userProfile.timezone))) {
+            medTimeInUserTimezone.add(1, 'day');
+          }
+
           const medTimeInUtc = medTimeInUserTimezone.clone().utc();
 
           console.log(`Medication time in user timezone (${userProfile.timezone}): ${medTimeInUserTimezone.format('YYYY-MM-DD HH:mm')}`);
