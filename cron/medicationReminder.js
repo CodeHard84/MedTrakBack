@@ -38,13 +38,13 @@ const sendMedicationReminders = async () => {
         let nextEmailTime = null;
 
         medication.times.forEach(medTime => {
-          const medTimeInUserTimezone = moment.tz(medTime, 'HH:mm', userProfile.timezone).set({
+          let medTimeInUserTimezone = moment.tz(medTime, 'HH:mm', userProfile.timezone).set({
             year: nowUtc.year(),
             month: nowUtc.month(),
             date: nowUtc.date()
           });
 
-          // Check if the medication time is before the current time, if so, add one day
+          // If the medication time is before the current time, it means it's for the next day
           if (medTimeInUserTimezone.isBefore(nowUtc)) {
             medTimeInUserTimezone.add(1, 'day');
           }
