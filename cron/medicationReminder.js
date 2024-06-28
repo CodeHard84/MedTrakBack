@@ -25,15 +25,17 @@ const sendMedicationReminders = async () => {
         
         medication.times.forEach(medTime => {
           const medTimeInUserTimezone = moment.tz(medTime, 'HH:mm', userProfile.timezone);
-          const medTimeInUtc = medTimeInUserTimezone.utc();
+          const medTimeInUtc = medTimeInUserTimezone.clone().utc();
           
-          console.log(`Medication time in user timezone: ${medTimeInUserTimezone.format('HH:mm')}`);
+          console.log(`Medication time in user timezone (${userProfile.timezone}): ${medTimeInUserTimezone.format('HH:mm')}`);
           console.log(`Medication time in UTC: ${medTimeInUtc.format('HH:mm')}`);
 
           if (medTimeInUtc.isBetween(nowUtc, fifteenMinutesFromNowUtc)) {
             const emailText = `Reminder: It's time to take your medication: ${medication.name}`;
             sendEmail(userProfile.email, 'Medication Reminder', emailText);
-            console.log(`Email sent to ${userProfile.email} for medication ${medication.name}`);
+            console.log(`Email sent to ${userProfile.email} for medication ${medication.name} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
+          } else {
+            console.log(`No reminder needed for ${medication.name} at this time.`);
           }
         });
       } else {
