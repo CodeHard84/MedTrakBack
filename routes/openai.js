@@ -1,7 +1,7 @@
 const express = require('express');
 const axios = require('axios');
 const router = express.Router();
-const Medication = require('../models/Medication'); // Assuming Medication model is already defined
+const Medication = require('../models/Medication');
 
 router.post('/generate-description', async (req, res) => {
   const { medicationName } = req.body;
@@ -16,7 +16,7 @@ router.post('/generate-description', async (req, res) => {
           { role: "user", content: `Describe the medication called ${medicationName}.` },
           { role: "user", content: `List the top 10 most common side effects of ${medicationName}.` }
         ],
-        max_tokens: 150,
+        max_tokens: 300,
       },
       {
         headers: {
@@ -26,11 +26,17 @@ router.post('/generate-description', async (req, res) => {
       }
     );
 
-    const choices = response.data.choices[0].message.content.split('\n\n');
-    const description = choices[0].trim();
-    const sideEffects = choices[1].trim().split('\n').map(effect => effect.replace(/^\d+\.\s*/, '')); // Format side effects list
+    const messageContent = response.data.choices[0]?.message?.content;
+    if (!messageContent) {
+      throw new Error('Invalid response from OpenAI');
+    }
 
-    res.json({ description, sideEffects });
+    const [description, sideEffectsBlock] = messageContent.split('\n\n');
+    const sideEffects = sideEffectsBlock
+      ? sideEffectsBlock.trim().split('\n').map(effect => effect.replace(/^\d+\.\s*/, ''))
+      : [];
+
+    res.json({ description: description.trim(), sideEffects });
   } catch (error) {
     console.error('Error generating description and side effects:', error);
     res.status(500).json({ error: 'Failed to generate description and side effects' });
