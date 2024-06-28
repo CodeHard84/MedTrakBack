@@ -38,6 +38,7 @@ const sendMedicationReminders = async () => {
         let nextEmailTime = null;
 
         medication.times.forEach(medTime => {
+          // Adjust medication time to today
           const medTimeInUserTimezone = moment.tz(medTime, 'HH:mm', userProfile.timezone).set({
             year: nowUtc.year(),
             month: nowUtc.month(),
@@ -50,17 +51,18 @@ const sendMedicationReminders = async () => {
           console.log(`Current time (UTC): ${nowUtc.format('YYYY-MM-DD HH:mm')}`);
           console.log(`Current time + 15 minutes (UTC): ${fifteenMinutesFromNowUtc.format('YYYY-MM-DD HH:mm')}`);
 
-          // Determine the next time an email should be sent
-          if (!nextEmailTime || medTimeInUtc.isBefore(nextEmailTime)) {
-            nextEmailTime = medTimeInUtc;
-          }
-
+          // Check if medTimeInUtc is within the next 15 minutes
           if (medTimeInUtc.isBetween(nowUtc, fifteenMinutesFromNowUtc)) {
             const emailText = `Reminder: It's time to take your medication: ${medication.name}`;
             console.log(`Sending email to ${userProfile.email} for medication ${medication.name} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
             sendEmail(userProfile.email, 'Medication Reminder', emailText);
           } else {
             console.log(`No reminder needed for ${medication.name} at this time.`);
+          }
+
+          // Determine the next time an email should be sent
+          if (!nextEmailTime || medTimeInUtc.isBefore(nextEmailTime)) {
+            nextEmailTime = medTimeInUtc;
           }
         });
 
