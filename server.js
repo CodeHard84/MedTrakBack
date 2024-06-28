@@ -1,5 +1,5 @@
 const express = require('express');
-const connectDB = require('./config/db');
+const connectDB = require('./middleware/db');
 const userProfiles = require('./routes/userProfiles');
 const medications = require('./routes/medications');
 require('./cron/medicationReminder');
