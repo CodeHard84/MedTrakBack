@@ -9,10 +9,18 @@ const app = express();
 
 connectDB();
 
-app.use(cors());
+// Enable CORS for specific origins
+app.use(cors({
+  origin: 'https://medtrk.netlify.app',
+  methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  credentials: true,
+  optionsSuccessStatus: 204
+}));
 
+// Middleware to parse JSON
 app.use(express.json({ extended: false }));
 
+// Routes
 app.use('/api/userProfile', userProfiles);
 app.use('/api/medications', medications);
 
