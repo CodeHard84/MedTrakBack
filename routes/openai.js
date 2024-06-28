@@ -1,25 +1,21 @@
 const express = require('express');
 const axios = require('axios');
-const Medication = require('../models/Medication');
 const router = express.Router();
-const checkJwt = require('../middleware/auth');
+const Medication = require('../models/Medication'); // Assuming Medication model is already defined
 
-router.post('/generate-description', checkJwt, async (req, res) => {
+router.post('/generate-description', async (req, res) => {
   const { medicationName } = req.body;
 
   try {
-    // Check if the description is already cached
-    let medication = await Medication.findOne({ name: medicationName, userId: req.auth.sub });
-    if (medication && medication.description) {
-      return res.json({ description: medication.description });
-    }
-
-    // Generate the description if not cached
     const response = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
         model: "gpt-3.5-turbo",
-        messages: [{ role: "system", content: `Describe the medication called ${medicationName}. Only end in completed sentences and do not list side effects.` }],
+        messages: [
+          { role: "system", content: "You are a medical assistant." },
+          { role: "user", content: `Describe the medication called ${medicationName}.` },
+          { role: "user", content: `List the top 10 most common side effects of ${medicationName}.` }
+        ],
         max_tokens: 150,
       },
       {
@@ -30,18 +26,14 @@ router.post('/generate-description', checkJwt, async (req, res) => {
       }
     );
 
-    const description = response.data.choices[0].message.content.trim();
+    const choices = response.data.choices[0].message.content.split('\n\n');
+    const description = choices[0].trim();
+    const sideEffects = choices[1].trim().split('\n').map(effect => effect.replace(/^\d+\.\s*/, '')); // Format side effects list
 
-    // Cache the description in the database
-    if (medication) {
-      medication.description = description;
-      await medication.save();
-    }
-
-    res.json({ description });
+    res.json({ description, sideEffects });
   } catch (error) {
-    console.error('Error generating description:', error);
-    res.status(500).json({ error: 'Failed to generate description' });
+    console.error('Error generating description and side effects:', error);
+    res.status(500).json({ error: 'Failed to generate description and side effects' });
   }
 });
 
