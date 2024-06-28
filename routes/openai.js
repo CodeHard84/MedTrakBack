@@ -13,7 +13,6 @@ router.post('/generate-description', async (req, res) => {
       return res.status(404).json({ error: 'Medication not found' });
     }
 
-    // If description and side effects already exist, return them
     if (medication.description && medication.sideEffects) {
       return res.json({
         description: medication.description,
@@ -21,12 +20,11 @@ router.post('/generate-description', async (req, res) => {
       });
     }
 
-    // Generate description
     const descriptionResponse = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
         model: "gpt-3.5-turbo",
-        messages: [{ role: "system", content: `Describe the medication called ${medicationName}. In no more than 5 sentences. Only end in complete sentences.` }],
+        messages: [{ role: "system", content: `Describe the medication called ${medicationName}. Only use a maximum of 5 sentences and be sure to end in a complete sentence.` }],
         max_tokens: 150
       },
       {
@@ -39,7 +37,6 @@ router.post('/generate-description', async (req, res) => {
 
     const description = descriptionResponse.data.choices[0].message.content.trim();
 
-    // Generate side effects
     const sideEffectsResponse = await axios.post(
       'https://api.openai.com/v1/chat/completions',
       {
@@ -57,12 +54,9 @@ router.post('/generate-description', async (req, res) => {
 
     const sideEffects = sideEffectsResponse.data.choices[0].message.content.trim();
 
-    // Update the medication with description and side effects
-    medication = await Medication.findOneAndUpdate(
-      { _id: medicationId },
-      { description, sideEffects },
-      { new: true, useFindAndModify: false }
-    );
+    medication.description = description;
+    medication.sideEffects = sideEffects;
+    await medication.save();
 
     res.json({ description, sideEffects });
   } catch (error) {
