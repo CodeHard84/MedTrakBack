@@ -4,7 +4,7 @@ const medicationSchema = new mongoose.Schema({
   name: { type: String, required: true },
   dosage: { type: String, required: true },
   frequency: { type: String, required: true },
-  howManyTimes: { type: Number, required: true },
+  howManyTimes: { type: Number},
   times: { type: [String] },
   dayOfWeek: { type: [Number] }, 
   dayOfMonth: { type: Number }, 
