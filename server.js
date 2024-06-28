@@ -4,6 +4,8 @@ const connectDB = require('./middleware/db');
 const userProfiles = require('./routes/userProfiles');
 const medications = require('./routes/medicationRoutes');
 require('./cron/medicationReminder');
+const openaiRoutes = require('./routes/openai');
+
 
 const app = express();
 
@@ -31,6 +33,7 @@ app.use(express.json({ extended: false }));
 // Routes
 app.use('/api/userProfile', userProfiles);
 app.use('/api/medications', medications);
+app.use('/api/openai', openaiRoutes);
 
 const PORT = process.env.PORT || 5000;
 
