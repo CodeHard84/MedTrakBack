@@ -43,6 +43,12 @@ const sendMedicationReminders = async () => {
             month: nowUtc.month(),
             date: nowUtc.date()
           });
+
+          // Check if the medication time is before the current time, if so, add one day
+          if (medTimeInUserTimezone.isBefore(nowUtc)) {
+            medTimeInUserTimezone.add(1, 'day');
+          }
+
           const medTimeInUtc = medTimeInUserTimezone.clone().utc();
 
           console.log(`Medication time in user timezone (${userProfile.timezone}): ${medTimeInUserTimezone.format('YYYY-MM-DD HH:mm')}`);
