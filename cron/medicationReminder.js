@@ -35,8 +35,6 @@ const sendMedicationReminders = async () => {
       if (userProfile && userProfile.email) {
         console.log(`Checking medication for user: ${medication.userId}`);
 
-        let emailSent = false;
-
         for (const medTime of medication.times) {
           // Ensure the medication time is set correctly for the current date in the user's timezone
           let medTimeInUserTimezone = moment.tz(medTime, 'HH:mm', userProfile.timezone).set({
@@ -57,12 +55,12 @@ const sendMedicationReminders = async () => {
           console.log(`Current time (UTC): ${nowUtc.format('YYYY-MM-DD HH:mm')}`);
           console.log(`Current time + 15 minutes (UTC): ${fifteenMinutesFromNowUtc.format('YYYY-MM-DD HH:mm')}`);
 
-          // Check if medTimeInUtc is within the next 15 minutes and email hasn't been sent yet
-          if (!emailSent && medTimeInUtc.isBetween(nowUtc, fifteenMinutesFromNowUtc)) {
+          // Check if medTimeInUtc is within the next 15 minutes
+          if (medTimeInUtc.isBetween(nowUtc, fifteenMinutesFromNowUtc)) {
             const emailText = `Reminder: It's time to take your medication: ${medication.name}`;
             console.log(`Sending email to ${userProfile.email} for medication ${medication.name} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
             sendEmail(userProfile.email, 'Medication Reminder', emailText);
-            emailSent = true;
+            break; // Exit the loop after sending the first email for this medication
           } else {
             console.log(`No reminder needed for ${medication.name} at this time.`);
           }
@@ -76,5 +74,6 @@ const sendMedicationReminders = async () => {
   }
 };
 
-// Schedule the cron job to run every minute
+// Schedule the cron job to run every minute (for testing purposes)
+// You can adjust the schedule based on your needs
 cron.schedule('* * * * *', sendMedicationReminders); // Run every minute
