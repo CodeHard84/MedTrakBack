@@ -49,10 +49,10 @@ router.post('/', checkJwt, async (req, res) => {
       dosage,
       frequency,
       howManyTimes,
-      times, // Store times in user's local time
+      times,
       dayOfWeek,
       dayOfMonth,
-      time, // Store the first time in user's local time
+      time,
       userId: req.auth.sub,
       timezone: userProfile.timezone,
     });
