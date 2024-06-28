@@ -5,18 +5,18 @@ const UserProfile = require('../models/UserProfile');
 const sendEmail = require('../config/email');
 const moment = require('moment-timezone');
 
-// Fetch current UTC time from an external reliable time source
+const lastEmailSent = {};
+
 const fetchCurrentUtcTime = async () => {
   try {
     const response = await axios.get('http://worldtimeapi.org/api/timezone/Etc/UTC');
     return moment(response.data.utc_datetime);
   } catch (error) {
     console.error('Error fetching current UTC time:', error);
-    return moment.utc(); // Fallback to server time if API call fails
+    return moment.utc();
   }
 };
 
-// Function to send medication reminders
 const sendMedicationReminders = async () => {
   try {
     console.log('Cron job running...');
@@ -36,14 +36,12 @@ const sendMedicationReminders = async () => {
         console.log(`Checking medication for user: ${medication.userId}`);
 
         for (const medTime of medication.times) {
-          // Ensure the medication time is set correctly for the current date in the user's timezone
           let medTimeInUserTimezone = moment.tz(medTime, 'HH:mm', userProfile.timezone).set({
             year: nowUtc.year(),
             month: nowUtc.month(),
             date: nowUtc.date()
           });
 
-          // Check if the medication time has already passed today, if so, adjust to the next day
           if (medTimeInUserTimezone.isBefore(moment.tz(nowUtc, userProfile.timezone))) {
             medTimeInUserTimezone.add(1, 'day');
           }
@@ -55,15 +53,26 @@ const sendMedicationReminders = async () => {
           console.log(`Current time (UTC): ${nowUtc.format('YYYY-MM-DD HH:mm')}`);
           console.log(`Current time + 15 minutes (UTC): ${fifteenMinutesFromNowUtc.format('YYYY-MM-DD HH:mm')}`);
 
-          // Check if medTimeInUtc is within the next 15 minutes
           if (medTimeInUtc.isBetween(nowUtc, fifteenMinutesFromNowUtc)) {
-            const emailText = `Reminder: It's time to take your medication: ${medication.name}`;
-            console.log(`Sending email to ${userProfile.email} for medication ${medication.name} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
-            sendEmail(userProfile.email, 'Medication Reminder', emailText);
-            break; // Exit the loop after sending the first email for this medication
+            const lastSent = lastEmailSent[`${medication._id}-${medTime}`];
+            if (!lastSent || moment.utc(lastSent).isBefore(nowUtc)) {
+              const emailText = `Reminder: It's time to take your medication: ${medication.name}`;
+              console.log(`Sending email to ${userProfile.email} for medication ${medication.name} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
+              sendEmail(userProfile.email, 'Medication Reminder', emailText);
+              lastEmailSent[`${medication._id}-${medTime}`] = fifteenMinutesFromNowUtc.toISOString();
+              break;
+            } else {
+              console.log(`Email already sent recently for ${medication.name} at ${medTime}.`);
+            }
           } else {
             console.log(`No reminder needed for ${medication.name} at this time.`);
           }
+
+          Object.keys(lastEmailSent).forEach(key => {
+            if (moment.utc(lastEmailSent[key]).isBefore(nowUtc)) {
+              delete lastEmailSent[key];
+            }
+          });
         }
       } else {
         console.log(`No user profile or email found for user: ${medication.userId}`);
@@ -74,6 +83,4 @@ const sendMedicationReminders = async () => {
   }
 };
 
-// Schedule the cron job to run every minute (for testing purposes)
-// You can adjust the schedule based on your needs
-cron.schedule('* * * * *', sendMedicationReminders); // Run every minute
+cron.schedule('* * * * *', sendMedicationReminders);
