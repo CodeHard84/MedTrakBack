@@ -35,9 +35,9 @@ const sendMedicationReminders = async () => {
       if (userProfile && userProfile.email) {
         console.log(`Checking medication for user: ${medication.userId}`);
 
-        let nextEmailTime = null;
+        let emailSent = false;
 
-        medication.times.forEach(medTime => {
+        for (const medTime of medication.times) {
           // Ensure the medication time is set correctly for the current date in the user's timezone
           let medTimeInUserTimezone = moment.tz(medTime, 'HH:mm', userProfile.timezone).set({
             year: nowUtc.year(),
@@ -58,25 +58,17 @@ const sendMedicationReminders = async () => {
           console.log(`Current time + 15 minutes (UTC): ${fifteenMinutesFromNowUtc.format('YYYY-MM-DD HH:mm')}`);
 
           // Check if medTimeInUtc is within the next 15 minutes
-          if (medTimeInUtc.isBetween(nowUtc, fifteenMinutesFromNowUtc)) {
+          if (!emailSent && medTimeInUtc.isBetween(nowUtc, fifteenMinutesFromNowUtc)) {
             const emailText = `Reminder: It's time to take your medication: ${medication.name}`;
             console.log(`Sending email to ${userProfile.email} for medication ${medication.name} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
             sendEmail(userProfile.email, 'Medication Reminder', emailText);
+            emailSent = true;
           } else {
             console.log(`No reminder needed for ${medication.name} at this time.`);
           }
 
-          // Determine the next time an email should be sent
-          if (!nextEmailTime || medTimeInUtc.isBefore(nextEmailTime)) {
-            nextEmailTime = medTimeInUtc;
-          }
-        });
-
-        // Log the next email time for this medication
-        if (nextEmailTime) {
-          console.log(`Next email for medication ${medication.name} will be sent at ${nextEmailTime.format('YYYY-MM-DD HH:mm')} UTC`);
-        } else {
-          console.log(`No upcoming email scheduled for medication ${medication.name}`);
+          // Break the loop if an email has already been sent
+          if (emailSent) break;
         }
       } else {
         console.log(`No user profile or email found for user: ${medication.userId}`);
