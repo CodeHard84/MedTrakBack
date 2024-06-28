@@ -24,8 +24,8 @@ const sendMedicationReminders = async () => {
     const nowUtc = await fetchCurrentUtcTime();
     const fifteenMinutesFromNowUtc = nowUtc.clone().add(15, 'minutes');
 
-    console.log(`Current UTC time from API: ${nowUtc.format()}`);
-    console.log(`UTC time 15 minutes from now: ${fifteenMinutesFromNowUtc.format()}`);
+    console.log(`Current UTC time from API: ${nowUtc.format('YYYY-MM-DD HH:mm')}`);
+    console.log(`UTC time 15 minutes from now: ${fifteenMinutesFromNowUtc.format('YYYY-MM-DD HH:mm')}`);
 
     const medications = await Medication.find();
     console.log(`Medications found: ${medications.length}`);
@@ -38,13 +38,17 @@ const sendMedicationReminders = async () => {
         let nextEmailTime = null;
 
         medication.times.forEach(medTime => {
-          const medTimeInUserTimezone = moment.tz(medTime, 'HH:mm', userProfile.timezone);
+          const medTimeInUserTimezone = moment.tz(medTime, 'HH:mm', userProfile.timezone).set({
+            year: nowUtc.year(),
+            month: nowUtc.month(),
+            date: nowUtc.date()
+          });
           const medTimeInUtc = medTimeInUserTimezone.clone().utc();
 
-          console.log(`Medication time in user timezone (${userProfile.timezone}): ${medTimeInUserTimezone.format('HH:mm')}`);
-          console.log(`Medication time in UTC: ${medTimeInUtc.format('HH:mm')}`);
-          console.log(`Current time (UTC): ${nowUtc.format('HH:mm')}`);
-          console.log(`Current time + 15 minutes (UTC): ${fifteenMinutesFromNowUtc.format('HH:mm')}`);
+          console.log(`Medication time in user timezone (${userProfile.timezone}): ${medTimeInUserTimezone.format('YYYY-MM-DD HH:mm')}`);
+          console.log(`Medication time in UTC: ${medTimeInUtc.format('YYYY-MM-DD HH:mm')}`);
+          console.log(`Current time (UTC): ${nowUtc.format('YYYY-MM-DD HH:mm')}`);
+          console.log(`Current time + 15 minutes (UTC): ${fifteenMinutesFromNowUtc.format('YYYY-MM-DD HH:mm')}`);
 
           // Determine the next time an email should be sent
           if (!nextEmailTime || medTimeInUtc.isBefore(nextEmailTime)) {
@@ -62,7 +66,7 @@ const sendMedicationReminders = async () => {
 
         // Log the next email time for this medication
         if (nextEmailTime) {
-          console.log(`Next email for medication ${medication.name} will be sent at ${nextEmailTime.format('HH:mm')} UTC`);
+          console.log(`Next email for medication ${medication.name} will be sent at ${nextEmailTime.format('YYYY-MM-DD HH:mm')} UTC`);
         } else {
           console.log(`No upcoming email scheduled for medication ${medication.name}`);
         }
