@@ -47,7 +47,7 @@ const sendMedicationReminders = async () => {
 
           // Check if the medication time has already passed today, if so, adjust to the next day
           if (medTimeInUserTimezone.isBefore(moment.tz(userProfile.timezone))) {
-            medTimeInUserTimezone.add(1, 'day');
+            // medTimeInUserTimezone.add(1, 'day');
           }
 
           const medTimeInUtc = medTimeInUserTimezone.clone().utc();
