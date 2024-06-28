@@ -1,17 +1,18 @@
 const mongoose = require('mongoose');
 
 const medicationSchema = new mongoose.Schema({
-  userId: { type: String, required: true },
   name: { type: String, required: true },
   dosage: { type: String, required: true },
   frequency: { type: String, required: true },
-  howManyTimes: { type: Number, required: false },
-  times: { type: [String], required: false },
-  dayOfWeek: { type: String, required: false },
-  dayOfMonth: { type: String, required: false },
-  time: { type: String, required: false },
-  timezone: { type: String, required: false },
-  description: { type: String, required: false },
+  howManyTimes: { type: Number, required: true },
+  times: { type: [String], required: true },
+  dayOfWeek: { type: [Number] }, // Array of days of the week
+  dayOfMonth: { type: Number }, // Specific day of the month
+  time: { type: String, required: true },
+  userId: { type: String, required: true },
+  timezone: { type: String, required: true },
+  description: { type: String }, // New field for medication description
+  sideEffects: { type: String } // New field for medication side effects
 });
 
 const Medication = mongoose.model('Medication', medicationSchema);
