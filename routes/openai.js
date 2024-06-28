@@ -57,10 +57,12 @@ router.post('/generate-description', async (req, res) => {
 
     const sideEffects = sideEffectsResponse.data.choices[0].message.content.trim();
 
-    // Save the generated description and side effects in the database
-    medication.description = description;
-    medication.sideEffects = sideEffects;
-    await medication.save({ validateBeforeSave: false }); // Skip validation to avoid the required fields issue
+    // Update the medication with description and side effects
+    medication = await Medication.findOneAndUpdate(
+      { _id: medicationId },
+      { description, sideEffects },
+      { new: true, useFindAndModify: false }
+    );
 
     res.json({ description, sideEffects });
   } catch (error) {
