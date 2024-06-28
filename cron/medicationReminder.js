@@ -18,10 +18,10 @@ const fetchCurrentUtcTime = async () => {
 const sendMedicationReminders = async () => {
   try {
     console.log('Cron job running...');
-    
+
     const nowUtc = await fetchCurrentUtcTime();
     const fifteenMinutesFromNowUtc = nowUtc.clone().add(15, 'minutes');
-    
+
     console.log(`Current UTC time from API: ${nowUtc.format('HH:mm')}`);
     console.log(`UTC time 15 minutes from now: ${fifteenMinutesFromNowUtc.format('HH:mm')}`);
 
@@ -40,11 +40,13 @@ const sendMedicationReminders = async () => {
 
           console.log(`Medication time in user timezone (${userProfile.timezone}): ${medTimeInUserTimezone.format('HH:mm')}`);
           console.log(`Medication time in UTC: ${medTimeInUtc.format('HH:mm')}`);
+          console.log(`Current time (UTC): ${nowUtc.format('HH:mm')}`);
+          console.log(`Current time + 15 minutes (UTC): ${fifteenMinutesFromNowUtc.format('HH:mm')}`);
 
           if (medTimeInUtc.isBetween(nowUtc, fifteenMinutesFromNowUtc)) {
             const emailText = `Reminder: It's time to take your medication: ${medication.name}`;
+            console.log(`Sending email to ${userProfile.email} for medication ${medication.name} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
             sendEmail(userProfile.email, 'Medication Reminder', emailText);
-            console.log(`Email sent to ${userProfile.email} for medication ${medication.name} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
           } else {
             console.log(`No reminder needed for ${medication.name} at this time.`);
           }
