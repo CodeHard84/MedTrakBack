@@ -38,7 +38,6 @@ const sendMedicationReminders = async () => {
         let nextEmailTime = null;
 
         medication.times.forEach(medTime => {
-          // Adjust medication time to today
           const medTimeInUserTimezone = moment.tz(medTime, 'HH:mm', userProfile.timezone).set({
             year: nowUtc.year(),
             month: nowUtc.month(),
