@@ -9,7 +9,8 @@ const medicationSchema = new mongoose.Schema({
   dayOfWeek: { type: String },
   dayOfMonth: { type: Number },
   time: { type: String },
-  userId: { type: String, required: true }, // User ID from JWT
+  userId: { type: String, required: true },
+  timezone: { type: String, required: true }
 });
 
 const Medication = mongoose.model('Medication', medicationSchema);
