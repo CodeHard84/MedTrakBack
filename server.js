@@ -14,7 +14,7 @@ connectDB();
 
 // Enable CORS for specific origins
 app.use(cors({
-  origin: 'https://medtrk.netlify.app',
+  origin: ['https://medtrk.netlify.app', '*'],
   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
   credentials: true,
   optionsSuccessStatus: 204
