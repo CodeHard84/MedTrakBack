@@ -46,7 +46,7 @@ const sendMedicationReminders = async () => {
 
           if (medTimeInUtc.isBetween(nowUtc, fifteenMinutesFromNowUtc)) {
             const emailText = `Reminder: It's time to take your medication: ${medication.name}`;
-            console.log(`Sending email to ${userProfile.email} for medication ${medication.name} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
+            console.log(`Upcoming reminder: Send email to ${userProfile.email} for medication ${medication.name} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
             sendEmail(userProfile.email, 'Medication Reminder', emailText);
           } else {
             console.log(`No reminder needed for ${medication.name} at this time.`);
