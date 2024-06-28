@@ -24,8 +24,12 @@ router.post('/generate-description', async (req, res) => {
     const description = response.data.choices[0].message.content.trim();
     res.json({ description });
   } catch (error) {
-    console.error('Error generating description:', error.response.data);
-    res.status(500).json({ error: 'Failed to generate description' });
+    console.error('Error generating description:', error.response ? error.response.data : error.message);
+    if (error.response && error.response.data.error.code === 'insufficient_quota') {
+      res.status(429).json({ error: 'You have exceeded your quota for OpenAI API usage. Please check your plan and billing details.' });
+    } else {
+      res.status(500).json({ error: 'Failed to generate description' });
+    }
   }
 });
 
