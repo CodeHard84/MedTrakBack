@@ -17,6 +17,14 @@ app.use(cors({
   optionsSuccessStatus: 204
 }));
 
+// Having issues with CORS, debug stuff...
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', 'https://medtrk.netlify.app');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  console.log(`Request received: ${req.method} ${req.url}`);
+  next();
+});
+
 // Middleware to parse JSON
 app.use(express.json({ extended: false }));
 
