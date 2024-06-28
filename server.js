@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const connectDB = require('./middleware/db');
 const medicationRoutes = require('./routes/medicationRoutes');
+const userProfiles = require('./routes/userProfiles');
 
 const app = express();
 
