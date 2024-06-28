@@ -76,7 +76,7 @@ router.delete('/:id', checkJwt, async (req, res) => {
       return res.status(403).json({ message: 'Unauthorized' });
     }
 
-    await medication.remove();
+    await Medication.findByIdAndDelete(req.params.id);
     res.json({ message: 'Medication deleted' });
   } catch (error) {
     console.error('Error deleting medication:', error); // Improved error logging
