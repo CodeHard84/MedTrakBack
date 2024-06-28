@@ -57,18 +57,15 @@ const sendMedicationReminders = async () => {
           console.log(`Current time (UTC): ${nowUtc.format('YYYY-MM-DD HH:mm')}`);
           console.log(`Current time + 15 minutes (UTC): ${fifteenMinutesFromNowUtc.format('YYYY-MM-DD HH:mm')}`);
 
-          // Check if medTimeInUtc is within the next 15 minutes
+          // Check if medTimeInUtc is within the next 15 minutes and email hasn't been sent yet
           if (!emailSent && medTimeInUtc.isBetween(nowUtc, fifteenMinutesFromNowUtc)) {
             const emailText = `Reminder: It's time to take your medication: ${medication.name}`;
-            console.log(`Sending email to ${userProfile.email} for medication ${medication.name} at ${medTimeInUserTimezone.format('HH:mm')} (${userProfile.timezone})`);
+            console.log(`Sending email to ${userProfile.email} for medication ${medication.name} at <span class="math-inline">\{medTimeInUserTimezone\.format\('HH\:mm'\)\} \(</span>{userProfile.timezone})`);
             sendEmail(userProfile.email, 'Medication Reminder', emailText);
             emailSent = true;
           } else {
             console.log(`No reminder needed for ${medication.name} at this time.`);
           }
-
-          // Break the loop if an email has already been sent
-          if (emailSent) break;
         }
       } else {
         console.log(`No user profile or email found for user: ${medication.userId}`);
