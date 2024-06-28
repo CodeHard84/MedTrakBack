@@ -1,7 +1,7 @@
 const express = require('express');
 const connectDB = require('./middleware/db');
 const userProfiles = require('./routes/userProfiles');
-const medications = require('./routes/medications');
+const medications = require('./routes/medicationRoutes');
 require('./cron/medicationReminder');
 
 const app = express();
