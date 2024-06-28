@@ -10,7 +10,7 @@ router.post('/generate-description', async (req, res) => {
       'https://api.openai.com/v1/chat/completions',
       {
         model: "gpt-3.5-turbo",
-        prompt: `Describe the medication called ${medicationName}.`,
+        messages: [{ role: "user", content: `Describe the medication called ${medicationName}.` }],
         max_tokens: 150,
       },
       {
@@ -21,10 +21,10 @@ router.post('/generate-description', async (req, res) => {
       }
     );
 
-    const description = response.data.choices[0].text.trim();
+    const description = response.data.choices[0].message.content.trim();
     res.json({ description });
   } catch (error) {
-    console.error('Error generating description:', error);
+    console.error('Error generating description:', error.response.data);
     res.status(500).json({ error: 'Failed to generate description' });
   }
 });
