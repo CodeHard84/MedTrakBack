@@ -17,17 +17,20 @@ router.get('/', checkJwt, async (req, res) => {
   }
 });
 
-// Get a medication by ID
+// Get a single medication by ID
 router.get('/:id', checkJwt, async (req, res) => {
   try {
     const medication = await Medication.findById(req.params.id);
     if (!medication) {
       return res.status(404).json({ message: 'Medication not found' });
     }
+    if (medication.userId !== req.auth.sub) {
+      return res.status(403).json({ message: 'Unauthorized' });
+    }
     res.json(medication);
   } catch (error) {
     console.error('Error fetching medication:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
