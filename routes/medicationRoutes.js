@@ -39,9 +39,9 @@ router.post('/', checkJwt, async (req, res) => {
 
 // Update a medication
 router.put('/:id', checkJwt, async (req, res) => {
-  const { name, dosage, frequency, howManyTimes, times, dayOfWeek, dayOfMonth, time } = req.body;
   try {
-    const medication = await Medication.findById(req.params.id);
+    const { id } = req.params;
+    const medication = await Medication.findById(id);
     if (!medication) {
       return res.status(404).json({ message: 'Medication not found' });
     }
@@ -49,19 +49,21 @@ router.put('/:id', checkJwt, async (req, res) => {
       return res.status(403).json({ message: 'Unauthorized' });
     }
 
-    medication.name = name;
-    medication.dosage = dosage;
-    medication.frequency = frequency;
-    medication.howManyTimes = frequency === 'daily' ? howManyTimes : undefined;
-    medication.times = frequency === 'daily' ? times : undefined;
-    medication.dayOfWeek = frequency === 'weekly' ? dayOfWeek : undefined;
-    medication.dayOfMonth = frequency === 'monthly' ? dayOfMonth : undefined;
-    medication.time = (frequency === 'weekly' || frequency === 'monthly') ? time : undefined;
+    // Update fields
+    medication.name = req.body.name || medication.name;
+    medication.dosage = req.body.dosage || medication.dosage;
+    medication.frequency = req.body.frequency || medication.frequency;
+    medication.howManyTimes = req.body.howManyTimes || medication.howManyTimes;
+    medication.times = req.body.times || medication.times;
+    medication.dayOfWeek = req.body.dayOfWeek || medication.dayOfWeek;
+    medication.dayOfMonth = req.body.dayOfMonth || medication.dayOfMonth;
+    medication.time = req.body.time || medication.time;
 
-    const updatedMedication = await medication.save();
-    res.json(updatedMedication);
+    await medication.save();
+    res.json(medication);
   } catch (error) {
-    res.status(400).json({ message: error.message });
+    console.error('Error updating medication:', error); // Improved error logging
+    res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
