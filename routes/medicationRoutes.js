@@ -79,7 +79,8 @@ router.delete('/:id', checkJwt, async (req, res) => {
     await medication.remove();
     res.json({ message: 'Medication deleted' });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error('Error deleting medication:', error); // Improved error logging
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
