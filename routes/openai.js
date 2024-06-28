@@ -26,7 +26,7 @@ router.post('/generate-description', async (req, res) => {
       'https://api.openai.com/v1/chat/completions',
       {
         model: "gpt-3.5-turbo",
-        messages: [{ role: "system", content: `Describe the medication called ${medicationName}. In no more than 5 sentences.` }],
+        messages: [{ role: "system", content: `Describe the medication called ${medicationName}. In no more than 5 sentences. Only end in complete sentences.` }],
         max_tokens: 150
       },
       {
