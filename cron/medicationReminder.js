@@ -47,7 +47,7 @@ const sendMedicationReminders = async () => {
           console.log(`Current time + 15 minutes (UTC): ${fifteenMinutesFromNowUtc.format('HH:mm')}`);
 
           // Determine the next time an email should be sent
-          if (!nextEmailTime || medTimeInUtc.isAfter(nextEmailTime)) {
+          if (!nextEmailTime || medTimeInUtc.isBefore(nextEmailTime)) {
             nextEmailTime = medTimeInUtc;
           }
 
